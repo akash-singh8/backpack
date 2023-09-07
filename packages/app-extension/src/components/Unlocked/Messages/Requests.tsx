@@ -6,22 +6,9 @@ import { isFirstLastListItemStyle } from "@coral-xyz/react-common";
 import { useCustomTheme } from "@coral-xyz/themes";
 import { Skeleton } from "@mui/material";
 
-export const Requests = ({ searchFilter }: { searchFilter: string }) => {
+export const useRequests = (): [RemoteUserData[], boolean] => {
   const [requests, setRequests] = useState<RemoteUserData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const theme = useCustomTheme();
-
-  const filteredRequests = requests
-    .filter((x) => x.username.includes(searchFilter))
-    .map((x: RemoteUserData) => ({
-      image: x.image,
-      //@ts-ignore -- remove uuid
-      id: x.id || x.uuid,
-      username: x.username,
-      areFriends: x.areFriends,
-      requested: x.requested,
-      remoteRequested: x.remoteRequested,
-    }));
 
   const fetchRequests = async () => {
     const response = await fetch(`${BACKEND_API_URL}/friends/requests`, {
@@ -39,6 +26,25 @@ export const Requests = ({ searchFilter }: { searchFilter: string }) => {
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  return [requests, loading];
+}
+
+export const Requests = ({ searchFilter }: { searchFilter: string }) => {
+  const [requests, loading] = useRequests();
+  const theme = useCustomTheme();
+
+  const filteredRequests = requests
+    .filter((x) => x.username.includes(searchFilter))
+    .map((x: RemoteUserData) => ({
+      image: x.image,
+      //@ts-ignore -- remove uuid
+      id: x.id || x.uuid,
+      username: x.username,
+      areFriends: x.areFriends,
+      requested: x.requested,
+      remoteRequested: x.remoteRequested,
+    }));
 
   if (loading) {
     return (
@@ -89,7 +95,7 @@ function UserSkeleton({
   const theme = useCustomTheme();
   return (
     <div
-      onClick={() => {}}
+      onClick={() => { }}
       style={{
         paddingLeft: "8px",
         paddingRight: "8px",
